@@ -1,4 +1,4 @@
- # Phishing catcher
+# Phishing catcher
 
 Catching malicious phishing domain names using [certstream](https://certstream.calidog.io/) SSL certificates live stream.
 
