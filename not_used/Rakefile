@@ -1,0 +1,17 @@
+require './website_importer.rb'
+require 'open3'
+task :kickoff_python do
+    # WebsiteImporter.new.import
+    # exec("python improved.py")
+    Open3.popen2e("python", "improved.py") do |_, stdout_and_stderr, _|
+      # puts stdout.read
+      # puts stderr.read
+      stdout_and_stderr.each do |line|
+        puts 'watching'
+        puts line
+      end
+    end
+end
+
+# require 'timeout'
+#random stuff:

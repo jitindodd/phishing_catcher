@@ -10,10 +10,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 import certstream
-import psycopg2
+import tqdm
+
 import entropy
 
 log_suspicious = 'suspicious_domains.log'
+with open(log_suspicious, 'w') as f:
+    f.write("")
 
 suspicious_keywords = [
     'login',
@@ -106,6 +109,9 @@ suspicious_tld = [
     '.science'
     ]
 
+pbar = tqdm.tqdm(desc='certificate_update', unit='cert')
+
+
 def score_domain(domain):
     """Score `domain`.
 
@@ -144,31 +150,22 @@ def callback(message, context):
         all_domains = message['data']['leaf_cert']['all_domains']
 
         for domain in all_domains:
+            pbar.update(1)
             score = score_domain(domain)
             if score > 75:
-                print(str(domain) + "," + str(score) + ",Suspicious")
-                insert_domain(str(domain), score, "Suspicious")
+                tqdm.tqdm.write(
+                    "\033[91mSuspicious: "
+                    "\033[4m{}\033[0m\033[91m (score={})\033[0m".format(domain,
+                                                                        score))
+                with open(log_suspicious, 'a') as f:
+                    f.write("{},{},{}\n".format(domain, score, 'Suspicious'))
             elif score > 65:
-                print(str(domain) + "," + str(score) + ",Potential")
-                insert_domain(str(domain), score, "Potential")
+                tqdm.tqdm.write(
+                    "Potential: "
+                    "\033[4m{}\033[0m\033[0m (score={})".format(domain, score))
+                with open(log_suspicious, 'a') as f:
+                    f.write("{},{},{}\n".format(domain, score, 'Potential'))
 
-def insert_vendor(url, score, category):
-    print("inserting into db")
-    sql = """INSERT INTO website.phishy_site(url,score,category) VALUES(%s, %s, %s);"""
-    try:
-        #conn = psycopg2.connect(host="ec2-184-73-247-240.compute-1.amazonaws.com", database="ddu0j66qdb2qf0", user="kkimbrfqqymfoc", password="b39ef8625e78b731ab19c3050b0f50b602abd9b908990171f99a4f6e44b26682", port=5432)
-        conn = psycopg2.connect(host="ec2-54-225-192-243.compute-1.amazonaws.com",
-                        database="d50rrv49epp2mb", user="csqxrzedqjfkbr",
-                        password="77135a5f0f9db7906f620ab209b2cbb00d9fb80ceecfa2e2b26ff5800319ea30",
-                        port=5432)
-        cur = conn.cursor()
-        cur.execute(sql, (url,score,category))
-        conn.commit()
-        cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+
 
 certstream.listen_for_events(callback)
