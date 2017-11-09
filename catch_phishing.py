@@ -15,6 +15,8 @@ import tqdm
 import entropy
 
 log_suspicious = 'suspicious_domains.log'
+with open(log_suspicious, 'w') as f:
+    f.write("")
 
 suspicious_keywords = [
     'login',
@@ -156,11 +158,14 @@ def callback(message, context):
                     "\033[4m{}\033[0m\033[91m (score={})\033[0m".format(domain,
                                                                         score))
                 with open(log_suspicious, 'a') as f:
-                    f.write("{}\n".format(domain))
+                    f.write("{},{},{}\n".format(domain, score, 'Suspicious'))
             elif score > 65:
                 tqdm.tqdm.write(
                     "Potential: "
                     "\033[4m{}\033[0m\033[0m (score={})".format(domain, score))
+                with open(log_suspicious, 'a') as f:
+                    f.write("{},{},{}\n".format(domain, score, 'Potential'))
+
 
 
 certstream.listen_for_events(callback)
