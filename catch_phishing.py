@@ -152,9 +152,9 @@ def callback(message, context):
                 print(str(domain) + "," + str(score) + ",Potential")
                 insert_domain(str(domain), score, "Potential")
 
-def insert_vendor(url, score, category):
+def insert_domain(url, score, category):
     print("inserting into db")
-    sql = """INSERT INTO website.phishy_site(url,score,category) VALUES(%s, %s, %s);"""
+    sql = """INSERT INTO phishy_sites(url,score,category) VALUES(%s, %s, %s);"""
     try:
         #conn = psycopg2.connect(host="ec2-184-73-247-240.compute-1.amazonaws.com", database="ddu0j66qdb2qf0", user="kkimbrfqqymfoc", password="b39ef8625e78b731ab19c3050b0f50b602abd9b908990171f99a4f6e44b26682", port=5432)
         conn = psycopg2.connect(host="ec2-54-225-192-243.compute-1.amazonaws.com",
