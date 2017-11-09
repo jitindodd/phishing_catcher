@@ -7,17 +7,21 @@ class WebsiteImporter
     conn = get_db_connection
     create_prepared_insert(conn, 'website.phishy_site')
     zip_array =  []
-    CSV.foreach('./suspicious_domains.log') do |row|
-        begin
-          puts "Inserting: #{row[0]}"
-          conn.exec_prepared(
-            'insert_phishy_site',
-            [row[0], row[1], row[2]]
-          )
-          puts "\tSuccess"
-        rescue Exception
-          puts "\tFail"
-        end
+    begin
+      CSV.foreach('./suspicious_domains.log') do |row|
+          begin
+            puts "Inserting: #{row[0]}"
+            conn.exec_prepared(
+              'insert_phishy_site',
+              [row[0], row[1], row[2]]
+            )
+            puts "\tSuccess"
+          rescue Exception
+            puts "\tFail"
+          end
+      end
+    rescue Exception
+        puts "Importer didn't start, something went wrong..."
     end
   end
 
